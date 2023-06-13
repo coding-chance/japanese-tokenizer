@@ -39,10 +39,11 @@ Before start running this program, install the following dependencies
 <br>
 
 ## How to run the program
-0. Download all the files from this repository.
+0. Download all the files from this repository. You can also use `git clone` command to make it available the code on your computer.
 ```
 git clone https://github.com/coding-chance/japanese-tokenizer
 ```
+
 1. Make a directory called "csv" under the root directory of the project. The extracted japanese words will be stored in both this file. Of course, the word will be directly stored in your clipboard too.
 
 2. Create a new file under the root directory and name it `.env` and write the path to the project directly. Modify `.env` like following.
@@ -56,6 +57,8 @@ TOKENIZER_PROJECT_DIR="copy/the/absolute/path/here/to/this/directory"
 ```bash
 python /path/to/project/directory/jp-tokenizer.py
 ```
+
+5. Now your clipboard holds the extracted words. Paste it anywhere you want. The extracted words are also stored under `csv` directory so please use them if you need.
 
 <br>
 
