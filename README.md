@@ -31,7 +31,22 @@ Did you notice we have a line break at the end of each word? This format makes i
 <br>
 
 ## Prerequisites
-Before start running this program, install the following dependencies
+Before start using this program, you have to install packages and a software. 
+
+If MeCab is not installed on your computer, please grab it from the following links and install.
+* [for Windows Users (github)](https://github.com/ikegami-yukino/mecab/releases)
+* [for MacOS Users (Homebrew)](https://formulae.brew.sh/formula/mecab)
+
+
+Now, run the following command on the root directory of the project to install the required packages.
+
+```bash
+pip install -r requirements.txt
+```
+
+
+
+The packages required for running the program are following.
 - [pyperclip](https://pypi.org/project/pyperclip/)
 - [MeCab](https://github.com/SamuraiT/mecab-python3)
 - [dotenv](https://pypi.org/project/python-dotenv/)
