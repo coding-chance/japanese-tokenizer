@@ -1,0 +1,4 @@
+pyperclip == 1.8.2
+python-dotenv == 1.0.0
+mecab-python3 == 1.0.6
+unidic-lite == 1.0.8
