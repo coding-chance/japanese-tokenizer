@@ -83,7 +83,17 @@ python /path/to/project/directory/jp-tokenizer.py
 
 ## Tips
 If you're using macOS, you can run this script from spotlight search bar at any time by creating an app that runs this program on `automator`.
- 
+
+* Open `Automator` on your macOS computer.
+* Create a new document and choose `application`
+* select `run shell script`
+* Fill out the code block with `/absolute/path/to/python /absolute/path/to/project/directory/jp-tokenizer.py && say -v Samantha 'Tokenize process completed.'`
+* Save this application and give it a name you like
+
+<br>
+
+Now open spotlight by pressing `Cmd key` + `Space key` and type the name of the application you created. When you press enter, the python script runs immediately and you'll hear voice announcement that lets you know that the process is completed.
+
 <br>
 
 ## Hints to understand the program
@@ -107,4 +117,8 @@ If you're using macOS, you can run this script from spotlight search bar at any 
 <br>
 
 ## Future Update
-I am currently thinking to add a function to this application that allows users to have the furigana(ruby) for kanji words using [よみたんAPI](https://yomi-tan.jp/man/v1). 
+I am currently thinking to add a function to this application that allows users to have the furigana(ruby) for kanji words using [よみたんAPI](https://yomi-tan.jp/man/v1).
+
+<br>
+
+If you have any idea, don't hesitate to tell me.
