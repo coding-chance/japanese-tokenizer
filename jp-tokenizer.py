@@ -47,7 +47,10 @@ while node:
     if part == '数詞' or sub_part == '固有名詞':
         print(f'{word} was excluded because it is a numeral or a proper noun')
          # Do nothing
-    elif part in ( '名詞', '代名詞', '接続詞', '動詞', '形容詞', '助詞', '助動詞', '副詞', '感動詞', '接頭辞', '接尾辞' ):
+    elif part == '動詞':
+        original_form_word = feature.split(",")[7]
+        extracted_wordlist.append(original_form_word)
+    elif part in ( '名詞', '代名詞', '接続詞', '形容詞', '助詞', '助動詞', '副詞', '感動詞', '接頭辞', '接尾辞' ):
         extracted_wordlist.append(word)
     
     node = node.next # Move on to next node(word)
