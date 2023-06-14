@@ -16,13 +16,10 @@ You will have the following result.
 ```
 明日
 もし
-晴れ
+晴れる
 たら
-私
-は
 ショッピング
-に
-出かける
+出掛ける
 だろう
 ```
 
