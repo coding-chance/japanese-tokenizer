@@ -1,5 +1,3 @@
-# 日本語の単語を抽出するプログラム
-
 import pyperclip
 import csv
 import datetime
