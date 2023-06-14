@@ -19,17 +19,6 @@ formatted_dt_now = dt_now.strftime('%d-%m-%Y_%H-%M-%S')
 # Get data stored in clipboard
 copiedText = pyperclip.paste()
 
-
-# Use the following lines when you want the program to wait for copying a new string
-# try:
-#     print("Copy the target text (timeout 60 seconds)")
-#     newCopiedText = pyperclip.waitForNewPaste(60)
-#     print(f"Copied Text: {newCopiedText}")
-# except pyperclip.PyperclipTimeoutException:
-#     print("Exit process due to timeout")
-#     sys.exit()
-
-
 # Extract words
 tagger = MeCab.Tagger()
 tagger.parse("") # To avoid 'UnicodeDecodeError'
