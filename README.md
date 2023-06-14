@@ -46,7 +46,7 @@ pip install -r requirements.txt
 
 
 
-The packages required for running the program are following.
+For your information, the packages required for running the program are following.
 - [pyperclip](https://pypi.org/project/pyperclip/)
 - [MeCab](https://github.com/SamuraiT/mecab-python3)
 - [dotenv](https://pypi.org/project/python-dotenv/)
@@ -100,6 +100,9 @@ If you're using macOS, you can run this script from spotlight search bar at any 
 - 感動詞(かんどうし/kandoushi): interjection
 - 接頭辞(せっとうじ/settouji): prefix
 - 接尾辞(せつびじ/setsubiji): suffix
+- 連体詞(れんたいし/rentaishi): pre-noun adjectival
+- 形容動詞(けいようどうし/keiyoudoushi): adjective verb / na-adjectives
+- 形状詞(けいじょうし/keijoushi): same as 形容動詞 (terminology for UniDic)
 
 <br>
 
