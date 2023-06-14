@@ -42,6 +42,8 @@ while node:
     feature = node.feature
     part = feature.split(",")[0]
     sub_part = feature.split(",")[1]
+    # print(word)
+    # print(feature)
 
     # Extract noun except numerals
     if part == '数詞' or sub_part == '固有名詞':
@@ -50,7 +52,7 @@ while node:
     elif part == '動詞':
         original_form_word = feature.split(",")[7]
         extracted_wordlist.append(original_form_word)
-    elif part in ( '名詞', '代名詞', '接続詞', '形容詞', '助詞', '助動詞', '副詞', '感動詞', '接頭辞', '接尾辞' ):
+    elif part in ( '名詞', '代名詞', '接続詞', '形容詞', '形状詞', '助詞', '助動詞', '副詞', '感動詞', '接頭辞', '接尾辞', '連体詞' ):
         extracted_wordlist.append(word)
     
     node = node.next # Move on to next node(word)
@@ -77,7 +79,19 @@ for word in no_duplicate_wordlist:
 no_empty_string_wordlist = [ i for i in no_alphabet_wordlist if i != '' ]
 # print(no_empty_string_wordlist)
 
-final_output_wordlist = no_empty_string_wordlist
+# Exclude single-character katakana and hiragana
+no_single_character_wordlist = []
+reg_hiragana = re.compile(r'^[あ-ん]+$')
+reg_katakana = re.compile(r'[\u30A1-\u30F4]+')
+for word in no_empty_string_wordlist:
+    if reg_hiragana.fullmatch(word) != True and reg_katakana.fullmatch(word) != True and len(word) != 1:
+        no_single_character_wordlist.append(word)
+    # print(f'{word} is hiragana?: {reg_hiragana.fullmatch(word)}')
+    # print(f'{word} is katakana?: {reg_katakana.fullmatch(word)}')
+    # print(f'length of {word}: {len(word)}')
+
+
+final_output_wordlist = no_single_character_wordlist
 # print(f"output:\n{final_output_wordlist}")
 
 # Convert one-dimensional list to two-dimensional list to save it as csv file
