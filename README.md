@@ -1,7 +1,7 @@
 # Japanese Tokenizer
 This script extracts japanese words from a japanese text.
 This is useful when you want to take words out of a huge text one by one.
-Japanese teachers may find this script useful when creating student-specific vocabulary list.
+Japanese teachers may find this script useful when creating custom vocabulary list for their students.
 
 If you run this programme while a japanese sentence is copied to the clipboard, words are extracted from the it and stored in the clipboard. Words other than hiragana, symbols and duplicate words are excluded.
  
@@ -11,7 +11,7 @@ For example, if you copy the following sentence and run the program...
 明日もし晴れたら、私はショッピングに出かけるだろう。
 ```
 
-You will have the following result. 
+You will have the following result.
 
 ```
 明日
