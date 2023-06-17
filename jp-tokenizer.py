@@ -27,19 +27,19 @@ extracted_wordlist = []
 while node:
     word = node.surface
     feature = node.feature
-    part = feature.split(",")[0]
-    sub_part = feature.split(",")[1]
+    pos = feature.split(",")[0]
+    sub_pos = feature.split(",")[1]
     # print(word)
     # print(feature)
 
     # Extract noun except numerals
-    if part == '数詞' or sub_part == '固有名詞':
+    if pos == '数詞' or sub_pos == '固有名詞':
         print(f'{word} was excluded because it is a numeral or a proper noun')
          # Do nothing
-    elif part == '動詞':
+    elif pos == '動詞':
         original_form_word = feature.split(",")[7]
         extracted_wordlist.append(original_form_word)
-    elif part in ( '名詞', '代名詞', '接続詞', '形容詞', '形状詞', '助詞', '助動詞', '副詞', '感動詞', '接頭辞', '接尾辞', '連体詞' ):
+    elif pos in ( '名詞', '代名詞', '接続詞', '形容詞', '形状詞', '助詞', '助動詞', '副詞', '感動詞', '接頭辞', '接尾辞', '連体詞' ):
         extracted_wordlist.append(word)
     
     node = node.next # Move on to next node(word)
