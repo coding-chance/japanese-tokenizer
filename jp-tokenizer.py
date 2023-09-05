@@ -27,19 +27,51 @@ extracted_wordlist = []
 while node:
     word = node.surface
     feature = node.feature
-    pos = feature.split(",")[0]
-    sub_pos = feature.split(",")[1]
-    # print(word)
-    # print(feature)
+    feature_list = feature.split(",")
+    
+    # If 'feature' list has less than six columns, skip the process. (e.x. 名詞,普通名詞,一般,*,*,*)
+    if len(feature_list) < 5:
+        print(f"Skipped this node process. 'feature' has less than six columns.\nfeature: {feature} ")
+        node = node.next
+
+    # get general pos (partOfSpeech)
+    pos = feature_list[0]
+    # get detailed pos
+    sub_pos = feature_list[1]
+    # get word in kanji (chinese character)   
+    try:
+        root_kanji = feature_list[7]
+    except (IndexError) as e:
+        print(f'No word data was detected: ({e})')
+        print(f"word: {word}")
+        print(f"feature: {feature}")
+        print(f"number of index of feature: {len( feature_list )}")
+        node = node.next
+    
+    print(feature)
+    
+
+    
+
+    
+    
 
     # Extract noun except numerals
-    if pos == '数詞' or sub_pos == '固有名詞':
-        print(f'{word} was excluded because it is a numeral or a proper noun')
-         # Do nothing
-    elif pos == '動詞':
-        original_form_word = feature.split(",")[7]
-        extracted_wordlist.append(original_form_word)
-    elif pos in ( '名詞', '代名詞', '接続詞', '形容詞', '形状詞', '助詞', '助動詞', '副詞', '感動詞', '接頭辞', '接尾辞', '連体詞' ):
+    if pos == '数詞':
+        print(f"{word} was excluded because it's a numeral({pos})")
+         # Exclude the words from the wordlist
+    elif sub_pos == '固有名詞':
+        print(f"{word} was excluded because it's a proper noun({sub_pos})")
+    elif pos == '助動詞':
+        print(f"{word} was excluded because it's an Auxiliary verb({pos})")
+    elif pos == "助詞":
+        print(f"{word} was excluded because it's a particle({pos})")
+    elif pos == "接尾辞":
+        print(f"{word} was excluded because it's a suffix({pos})")
+    elif pos in { '動詞', "形容詞", "形状詞" }  or sub_pos == '普通名詞':
+        # Extract 7th item (kanji word) and add it to wordlist
+        extracted_wordlist.append(root_kanji)
+    elif pos in ( '名詞', '接続詞', '副詞', '感動詞', '接頭辞', '連体詞', "代名詞" ):
         extracted_wordlist.append(word)
     
     node = node.next # Move on to next node(word)
