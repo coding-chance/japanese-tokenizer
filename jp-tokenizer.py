@@ -6,6 +6,8 @@ import re
 from dotenv import load_dotenv
 import os
 import sys
+import pykakasi
+from deep_translator import GoogleTranslator
 
 # load environment variable set in .env
 load_dotenv()
@@ -14,7 +16,7 @@ TOKENIZER_PROJECT_DIRECTORY = os.environ['TOKENIZER_PROJECT_DIR']
 
 # Get current time info
 dt_now = datetime.datetime.now()
-formatted_dt_now = dt_now.strftime('%d-%m-%Y_%H-%M-%S')
+formatted_dt_now = dt_now.strftime('%Y-%m-%d_%H.%M.%S')
 
 # Get data stored in clipboard
 copiedText = pyperclip.paste()
@@ -110,15 +112,43 @@ for word in no_empty_string_wordlist:
     # print(f'length of {word}: {len(word)}')
 
 
-final_output_wordlist = no_single_character_wordlist
-# print(f"output:\n{final_output_wordlist}")
+
+
+# Convert words to romaji and append it to romaji_wordlist
+kks = pykakasi.kakasi()
+romaji_wordlist = []
+for word in no_single_character_wordlist:
+    romaji = kks.convert(word)[0]['hepburn']
+    romaji_wordlist.append(romaji)
+    # print(romaji)
+
+
+
+# Get definition of each word
+definition_wordlist = []
+for word in no_single_character_wordlist:
+    definition = GoogleTranslator(source='ja', target='fr').translate(word)
+    definition_wordlist.append(definition)
+# print(f'definition_wordlist: {definition_wordlist}')
+
+# Put together word, romaji and definition in a list
+final_output_wordlist = []
+for i in range(len(no_single_character_wordlist)):
+    final_output_wordlist.append(f"{no_single_character_wordlist[i]}    [{romaji_wordlist[i]}] {definition_wordlist[i]}")
+
+# Convert final_output_wordlist to the list that contains words separated with comma.
+comma_separated_wordlist = []
+for i in range(len(no_single_character_wordlist)):
+    comma_separated_wordlist.append(f"{no_single_character_wordlist[i]},{romaji_wordlist[i]},{definition_wordlist[i]}")
+# print(f"comma_separated_wordlist: {comma_separated_wordlist}")
 
 # Convert one-dimensional list to two-dimensional list to save it as csv file
-two_d_output_wordlist = [ [i] for i in final_output_wordlist ] 
+two_d_output_wordlist = [ [i] for i in comma_separated_wordlist ]
+# print(two_d_output_wordlist)
 
 # Store output as a csv file
 with open(f'{TOKENIZER_PROJECT_DIRECTORY}/csv/jp-word-list-{formatted_dt_now}.csv', 'w') as f:
-    writer = csv.writer(f)
+    writer = csv.writer(f, quoting=csv.QUOTE_NONE, escapechar=" ")
     # writer.writerow(two_d_output_wordlist) # Use this line when writing a line into csv file
     writer.writerows(two_d_output_wordlist)
 
