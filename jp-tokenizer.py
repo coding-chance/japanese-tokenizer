@@ -99,11 +99,11 @@ while node:
         print(f"  word -> {word}, number of index of feature -> {len( feature_list )}, feature: {feature}")
         node = node.next
     
-    if word in {"ユウ", "為る"} :
+    if word in {"ユウ", "おう"} :
         print(f"{word}: {feature}")
     
 
-    # Filter out words (exclude single character word and numerals)
+    # Filter out words (exclude alphabet, numerals, single character word and ancient kanji)
     if pos == '数詞':
         print(f"{word} was excluded because it's a numeral({pos})")
          # Exclude the words from the wordlist
@@ -117,12 +117,14 @@ while node:
         print(f"{word} was excluded because it's a prefix({pos})")
     elif pos == "副詞" and len(word) == 1:
         print(f"{word} was excluded because it's a single character adverb({pos})")
+    elif pos == "感動詞" and len(word) == 1:
+        print(f"{word} was excluded because it's an interjection({pos})")
     elif pos in { '動詞', "形容詞", "形状詞" }  or sub_pos == '普通名詞':
         # Extract kanji and add it to wordlist (root_kanji is 7th item in feature is written in kanji always)
         extracted_wordlist.append(root_kanji)
     elif sub_pos == '固有名詞':
         extracted_wordlist.append(word)
-    elif pos in ( '名詞', '接続詞', '副詞', '感動詞', '連体詞', "代名詞" ):
+    elif pos in ( '名詞', '接続詞', '副詞', '連体詞', "代名詞" ):
         extracted_wordlist.append(word)
 
     node = node.next # Move on to next node(word)
@@ -182,5 +184,3 @@ with open(f'{TOKENIZER_PROJECT_DIRECTORY}/csv/jp-word-list-{formatted_dt_now}.cs
 # Copy final output to the clipboard with a new line(\n) at the end of each word
 final_output_string = '\n'.join(final_output_wordlist)
 pyperclip.copy(final_output_string)
-
-
