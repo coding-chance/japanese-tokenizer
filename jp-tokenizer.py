@@ -8,6 +8,7 @@ import os
 import sys
 import pykakasi
 from deep_translator import GoogleTranslator
+import jaconv
 
 # load environment variable set in .env
 load_dotenv()
@@ -29,11 +30,22 @@ def exclude_duplicate_word(wordlist):
 
 # Exclude alphabetical words
 def exclude_alphabet(wordlist):
-    japanese = re.compile('[ぁ-んァ-ン一-龥]+')
+    re_japanese = re.compile('[ぁ-んァ-ン一-龥]+')
+    re_alphabet = re.compile(r'.*[a-zA-Z\s\.\,]+') # アルファベット判定用正規表現
     no_alphabet_wordlist = []
     for word in wordlist:
-        if japanese.findall(word):
+        # contain_alphabet = re.match(re_alphabet, word) # アルファベット判定
+        contain_alphabet = re.search(r'[a-zA-Z0-9]', word)
+        print(f"contain_alphabet({word}): {contain_alphabet}")
+        if word.isascii():
+            print(f"{word}はアルファベットを含みます。")      
+            word = word.split('-')[0]
             no_alphabet_wordlist.append(word)
+        elif re_japanese.findall(word):
+            print(f"{word}は日本語を含みます。")      
+            no_alphabet_wordlist.append(word)
+        
+
     return no_alphabet_wordlist
 
 # Exclude single-character katakana and hiragana (Stopped using this because it excluded single character kanji)
@@ -63,6 +75,42 @@ def convert_romaji_to_french_phonetic(input_word_list):
         replaced_word_list.append(replaced_phonetic)
     return replaced_word_list
 
+def convert_kanji_to_hiragana(kanji_list):
+    hiragana_list = []
+    kakasi = pykakasi.kakasi()
+    re_katakana = re.compile(r'[\u30A1-\u30F4]+')  # カタカナ判定用正規表現
+    re_hiragana = re.compile(r'^[あ-ん]+$')  # ひらがな判定用正規表現
+    re_kanji = re.compile(r'^[\u4E00-\u9FD0]+$')  # 漢字判定用正規表現
+    for word in kanji_list:
+        print(word)
+        status_katakana = re_katakana.fullmatch(word)  # 単語がカタカナかどうか判定する
+        status_hiragana = re_hiragana.fullmatch(word)  # 単語がひらがなかどうか判定する
+        status_kanji = re_kanji.fullmatch(word)
+        print(f"status_katakana({word}): {status_katakana}")
+        print(f"status_hiragana({word}): {status_hiragana}")
+        print(f"status_kanji({word}): {status_kanji}")
+        hiragana = ""
+        if status_kanji:
+            hiragana = kakasi.convert(word)[0]['hira']
+            print(f"{word} is kanji, converted to {hiragana}")
+        elif status_katakana:
+            hiragana = jaconv.kata2hira(word)  # katakana -> hiragana
+            print(f"{word} is katakana, converted to {hiragana}")
+        elif status_hiragana:
+            print(f"{word} is already hiragana, no need to convert.")
+        hiragana_list.append(hiragana)
+    return hiragana_list
+
+def exclude_stop_words(wordlist):
+    stop_words = ["為", "為る", "為す", "呉れる", "有る", "成る", "これ", "あれ"]
+    filtered_words = []
+    for word in wordlist:
+        # Check if the word is not in the stop_words list
+        if word not in stop_words:
+            # If the word is not in stop_words, add it to the filtered_words list
+            filtered_words.append(word)
+    return filtered_words
+
 
 
 # Get current time info
@@ -77,6 +125,7 @@ tagger = MeCab.Tagger()
 tagger.parse("") # To avoid 'UnicodeDecodeError'
 node = tagger.parseToNode(copiedText)
 extracted_wordlist = []
+hiragana_wordlist = []
 while node:
     word = node.surface
     feature = node.feature
@@ -99,12 +148,12 @@ while node:
         print(f"  word -> {word}, number of index of feature -> {len( feature_list )}, feature: {feature}")
         node = node.next
     
-    if word in {"ユウ", "おう"} :
-        print(f"{word}: {feature}")
+    
+    # print(f"{feature}")
     
 
     # Filter out words (exclude alphabet, numerals, single character word and ancient kanji)
-    if pos == '数詞':
+    if sub_pos == '数詞':
         print(f"{word} was excluded because it's a numeral({pos})")
          # Exclude the words from the wordlist
     elif pos == '助動詞':
@@ -122,24 +171,27 @@ while node:
     elif pos in { '動詞', "形容詞", "形状詞" }  or sub_pos == '普通名詞':
         # Extract kanji and add it to wordlist (root_kanji is 7th item in feature is written in kanji always)
         extracted_wordlist.append(root_kanji)
+        print("動詞、形容詞、形状詞、普通名詞")
     elif sub_pos == '固有名詞':
+        print("固有名詞 ↓")
         extracted_wordlist.append(word)
     elif pos in ( '名詞', '接続詞', '副詞', '連体詞', "代名詞" ):
+        print("名詞, or 接続詞 or 副詞 or 連体詞 or代名詞 ↓")
         extracted_wordlist.append(word)
-
     node = node.next # Move on to next node(word)
-
 
 
 
 # Remove duplicate words from wordlist
 unique_wordlist = exclude_duplicate_word(extracted_wordlist)
+print(f"英数字除外前\n{unique_wordlist}")
 # Exclude alphabetical words
 no_alphabet_wordlist = exclude_alphabet(unique_wordlist)
+print(f"除外後\n{no_alphabet_wordlist}")
 # Exclude empty strings
 packed_wordlist = [ i for i in no_alphabet_wordlist if i != '' ]
-# print(packed_wordlist)
-processed_wordlist = packed_wordlist
+no_stop_word_list = exclude_stop_words(packed_wordlist)
+processed_wordlist = no_stop_word_list
 
 
 # Convert words to romaji and append it to romaji_wordlist
@@ -160,15 +212,21 @@ for word in processed_wordlist:
     definition_wordlist.append(definition)
 # print(f'definition_wordlist: {definition_wordlist}')
 
+# Convert Kanji to Hiragana
+hiragana_wordlist = convert_kanji_to_hiragana(processed_wordlist)
+
+print(f"単語数: {len(processed_wordlist)}\n{processed_wordlist}")
+print(f"ひらがな数: {len(hiragana_wordlist)}\n{hiragana_wordlist}")
+
 # Put together word, romaji and definition in a list
 final_output_wordlist = []
 for i in range(len(processed_wordlist)):
-    final_output_wordlist.append(f"{processed_wordlist[i]}    [ {romaji_wordlist[i]} ] {definition_wordlist[i]}")
+    final_output_wordlist.append(f"{processed_wordlist[i]}    [ {hiragana_wordlist[i]} / {romaji_wordlist[i]} ] {definition_wordlist[i]}")
 
 # Convert final_output_wordlist to the list that contains words separated with comma.
 comma_separated_wordlist = []
 for i in range(len(processed_wordlist)):
-    comma_separated_wordlist.append(f"{processed_wordlist[i]},{romaji_wordlist[i]},{definition_wordlist[i]}")
+    comma_separated_wordlist.append(f"{processed_wordlist[i]},{hiragana_wordlist[i]},{romaji_wordlist[i]},{definition_wordlist[i]}")
 # print(f"comma_separated_wordlist: {comma_separated_wordlist}")
 
 # Convert one-dimensional list to two-dimensional list to save it as csv file
