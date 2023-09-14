@@ -36,7 +36,7 @@ def exclude_alphabet(wordlist):
     for word in wordlist:
         # contain_alphabet = re.match(re_alphabet, word) # アルファベット判定
         contain_alphabet = re.search(r'[a-zA-Z0-9]', word)
-        print(f"contain_alphabet({word}): {contain_alphabet}")
+        # print(f"contain_alphabet({word}): {contain_alphabet}")
         if word.isascii():
             print(f"{word}はアルファベットを含みます。")      
             word = word.split('-')[0]
@@ -86,10 +86,11 @@ def convert_kanji_to_hiragana(kanji_list):
         status_katakana = re_katakana.fullmatch(word)  # 単語がカタカナかどうか判定する
         status_hiragana = re_hiragana.fullmatch(word)  # 単語がひらがなかどうか判定する
         status_kanji = re_kanji.fullmatch(word)
-        print(f"status_katakana({word}): {status_katakana}")
-        print(f"status_hiragana({word}): {status_hiragana}")
-        print(f"status_kanji({word}): {status_kanji}")
+        # print(f"status_katakana({word}): {status_katakana}")
+        # print(f"status_hiragana({word}): {status_hiragana}")
+        # print(f"status_kanji({word}): {status_kanji}")
         hiragana = ""
+
         if status_kanji:
             hiragana = kakasi.convert(word)[0]['hira']
             print(f"{word} is kanji, converted to {hiragana}")
@@ -98,11 +99,15 @@ def convert_kanji_to_hiragana(kanji_list):
             print(f"{word} is katakana, converted to {hiragana}")
         elif status_hiragana:
             print(f"{word} is already hiragana, no need to convert.")
+        else:
+            print(f"{word} is mix with kanji and hiragana, converted to {hiragana}.")
+            hiragana = kakasi.convert(word)[0]['hira']
+
         hiragana_list.append(hiragana)
     return hiragana_list
 
 def exclude_stop_words(wordlist):
-    stop_words = ["為", "為る", "為す", "呉れる", "有る", "成る", "これ", "あれ"]
+    stop_words = ["為", "為る", "為す", "呉れる", "有る", "成る", "これ", "あれ", "居る", "私"]
     filtered_words = []
     for word in wordlist:
         # Check if the word is not in the stop_words list
@@ -184,10 +189,11 @@ while node:
 
 # Remove duplicate words from wordlist
 unique_wordlist = exclude_duplicate_word(extracted_wordlist)
-print(f"英数字除外前\n{unique_wordlist}")
+# print(f"英数字除外前\n{unique_wordlist}")
 # Exclude alphabetical words
 no_alphabet_wordlist = exclude_alphabet(unique_wordlist)
 print(f"除外後\n{no_alphabet_wordlist}")
+
 # Exclude empty strings
 packed_wordlist = [ i for i in no_alphabet_wordlist if i != '' ]
 no_stop_word_list = exclude_stop_words(packed_wordlist)
@@ -215,7 +221,7 @@ for word in processed_wordlist:
 # Convert Kanji to Hiragana
 hiragana_wordlist = convert_kanji_to_hiragana(processed_wordlist)
 
-print(f"単語数: {len(processed_wordlist)}\n{processed_wordlist}")
+print(f"抽出単語数: {len(processed_wordlist)}\n{processed_wordlist}")
 print(f"ひらがな数: {len(hiragana_wordlist)}\n{hiragana_wordlist}")
 
 # Put together word, romaji and definition in a list
