@@ -227,7 +227,10 @@ print(f"ひらがな数: {len(hiragana_wordlist)}\n{hiragana_wordlist}")
 # Put together word, romaji and definition in a list
 final_output_wordlist = []
 for i in range(len(processed_wordlist)):
-    final_output_wordlist.append(f"{processed_wordlist[i]}    [ {hiragana_wordlist[i]} / {romaji_wordlist[i]} ] {definition_wordlist[i]}")
+    if hiragana_wordlist[i] == "":
+        final_output_wordlist.append(f"{processed_wordlist[i]}    [ {romaji_wordlist[i]} ] {definition_wordlist[i]}")
+    else:
+        final_output_wordlist.append(f"{processed_wordlist[i]}    [ {hiragana_wordlist[i]} / {romaji_wordlist[i]} ] {definition_wordlist[i]}")
 
 # Convert final_output_wordlist to the list that contains words separated with comma.
 comma_separated_wordlist = []
