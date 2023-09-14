@@ -243,7 +243,7 @@ two_d_output_wordlist = [ [i] for i in comma_separated_wordlist ]
 # print(two_d_output_wordlist)
 
 # Store output as a csv file
-with open(f'{TOKENIZER_PROJECT_DIRECTORY}/csv/jp-word-list-{formatted_dt_now}.csv', 'w') as f:
+with open(f'{TOKENIZER_PROJECT_DIRECTORY}/jp-word-list-{formatted_dt_now}.csv', 'w') as f:
     writer = csv.writer(f, quoting=csv.QUOTE_NONE, escapechar=" ")
     # writer.writerow(two_d_output_wordlist) # Use this line when writing a line into csv file
     writer.writerows(two_d_output_wordlist)
