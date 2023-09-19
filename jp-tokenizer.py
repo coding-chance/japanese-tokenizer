@@ -9,14 +9,48 @@ import sys
 import pykakasi
 from deep_translator import GoogleTranslator
 import jaconv
+from tkinter import *
+import tkinter as tk
+import tkinter.font as font
 
 # load environment variable set in .env
 load_dotenv()
 # Load directory path to the project directory from .env file
 TOKENIZER_PROJECT_DIRECTORY = os.environ['TOKENIZER_PROJECT_DIR']
 
+# 
+class OutputOptionMenu(OptionMenu):
+    def __init__(self, master, status, *options):
+        self.var = StringVar(master)
+        self.var.set(status)
+        # print(f"self.var: {self.var}")
+        OptionMenu.__init__(self, master, self.var, *options)
+        self.config(font=('calibri', (16)), bg='white', width=32, fg='black')
+        self['menu'].config(font=('calibri', (16)), bg='white', fg='dark blue')
+
+    def callback(self):
+        val = self.var.get()
+        print(f"chosen output type: {val}")
 
 
+
+        ####### This part fails to modify global variable "output_format" ##########
+
+        if val == "日本語  ↔  [ にほんご / nihongo ] japonais":
+            self.var.set(1)
+        elif val == "日本語 [ にほんご ]  ↔  [ nihongo ] japonais":
+            self.var.set(2)
+        elif val == "にほんご [nihongo]  ↔  [ 日本語 ] japonais":
+            self.var.set(3)
+        elif val == "japonais  ↔  日本語 [ にほんご / nihongo ]":
+            self.var.set(4)            
+
+        #########################################################
+
+        root.destroy()
+
+        # If you want to run subprocess, include 'subprocess' library
+        # subprocess.call([val])
 
 # Combine duplicate words into one.
 def exclude_duplicate_word(wordlist):
@@ -38,11 +72,11 @@ def exclude_alphabet(wordlist):
         contain_alphabet = re.search(r'[a-zA-Z0-9]', word)
         # print(f"contain_alphabet({word}): {contain_alphabet}")
         if word.isascii():
-            print(f"{word}はアルファベットを含みます。")      
+            # print(f"{word} contains alphabet")      
             word = word.split('-')[0]
             no_alphabet_wordlist.append(word)
         elif re_japanese.findall(word):
-            print(f"{word}は日本語を含みます。")      
+            # print(f"{word} contains Japanese character")      
             no_alphabet_wordlist.append(word)
         
 
@@ -107,7 +141,7 @@ def convert_kanji_to_hiragana(kanji_list):
     return hiragana_list
 
 def exclude_stop_words(wordlist):
-    stop_words = ["為", "為る", "為す", "呉れる", "有る", "成る", "これ", "あれ", "居る", "私"]
+    stop_words = ["為", "為る", "為す", "呉れる", "有る", "成る", "これ", "あれ", "居る", "私", "*"]
     filtered_words = []
     for word in wordlist:
         # Check if the word is not in the stop_words list
@@ -116,6 +150,52 @@ def exclude_stop_words(wordlist):
             filtered_words.append(word)
     return filtered_words
 
+# Remove alphabet from Katakana word (e.g. サービス-service)
+def remove_alphabet_from_katakana_word(wordlist):
+    no_katakana_alphabet_words = []
+    for word in wordlist:
+        if word.find("-") == -1 : # doesn't contain "-"
+            no_katakana_alphabet_words.append(word)
+        else:              # contains "-"
+            print(f"カタカナ言葉を検知しました(単語に含まれるアルファベットが取り除かれます): {word}")
+            no_katakana_alphabet_words.append(word.split("-")[0]) # remove the string after hypen
+    return no_katakana_alphabet_words
+
+
+root = Tk()
+# Set window size
+w = 450 # width for the Tk root
+h = 250 # height for the Tk root
+ws = root.winfo_screenwidth() # width of the screen
+hs = root.winfo_screenheight() # height of the screen
+x = (ws/2) - (w/2)
+y = (hs/2) - (h/2)
+root.geometry('%dx%d+%d+%d' % (w, h, x, y))
+
+root.title('JP Tokenizer')
+label = Label(text='Choose output type', font=('calibri', (18)), fg='white', 
+              padx=20, pady=15).pack()
+
+output_types = OutputOptionMenu(
+    root,
+    "日本語  ↔  [ にほんご / nihongo ] japonais",
+    "日本語 [ にほんご ]  ↔  [ nihongo ] japonais",
+    "にほんご [nihongo]  ↔  [ 日本語 ] japonais",
+    "japonais  ↔  日本語 [ にほんご / nihongo ]",
+)
+
+# Create Button
+buttonFont = font.Font(size=20)
+button = Button(root, text="Start", fg='black', width=6, height=1, command=output_types.callback)
+button['font'] = buttonFont
+
+# Set where to put widget element
+output_types.place(x=50, y=60)
+button.place(x=170, y=110)
+
+# Render UI
+root.mainloop()
+output_format = int(output_types.var.get())
 
 
 # Get current time info
@@ -138,7 +218,7 @@ while node:
     
     # If 'feature' list has less than six columns, skip the process. (e.x. 名詞,普通名詞,一般,*,*,*)
     if len(feature_list) < 5:
-        print(f"Skipped this node process. 'feature' has less than six columns.\nfeature: {feature} ")
+        # print(f"Skipped this node process. 'feature' has less than six columns.\nfeature: {feature} ")
         node = node.next
 
     # get general pos (partOfSpeech)
@@ -149,8 +229,8 @@ while node:
     try:
         root_kanji = feature_list[7]
     except (IndexError) as e:
-        print(f'Failed to get word root because no word data was detected: (error: {e})')
-        print(f"  word -> {word}, number of index of feature -> {len( feature_list )}, feature: {feature}")
+        # print(f'Failed to get word root because no word data was detected: (error: {e})')
+        # print(f"  word -> {word}, number of index of feature -> {len( feature_list )}, feature: {feature}")
         node = node.next
     
     
@@ -159,29 +239,35 @@ while node:
 
     # Filter out words (exclude alphabet, numerals, single character word and ancient kanji)
     if sub_pos == '数詞':
-        print(f"{word} was excluded because it's a numeral({pos})")
+        # print(f"{word} was excluded because it's a numeral({pos})")
+        pass
          # Exclude the words from the wordlist
     elif pos == '助動詞':
-        print(f"{word} was excluded because it's an Auxiliary verb({pos})")
+        # print(f"{word} was excluded because it's an Auxiliary verb({pos})")
+        pass
     elif pos == "助詞":
-        print(f"{word} was excluded because it's a particle({pos})")
+        # print(f"{word} was excluded because it's a particle({pos})")
+        pass
     elif pos == "接尾辞":
-        print(f"{word} was excluded because it's a suffix({pos})")
+        # print(f"{word} was excluded because it's a suffix({pos})")
+        pass
     elif pos == "接頭辞":
-        print(f"{word} was excluded because it's a prefix({pos})")
+        # print(f"{word} was excluded because it's a prefix({pos})")
+        pass
     elif pos == "副詞" and len(word) == 1:
-        print(f"{word} was excluded because it's a single character adverb({pos})")
+        # print(f"{word} was excluded because it's a single character adverb({pos})")
+        pass
     elif pos == "感動詞" and len(word) == 1:
-        print(f"{word} was excluded because it's an interjection({pos})")
+        # print(f"{word} was excluded because it's an interjection({pos})")
+        pass
     elif pos in { '動詞', "形容詞", "形状詞" }  or sub_pos == '普通名詞':
-        # Extract kanji and add it to wordlist (root_kanji is 7th item in feature is written in kanji always)
-        extracted_wordlist.append(root_kanji)
-        print("動詞、形容詞、形状詞、普通名詞")
+        extracted_wordlist.append(root_kanji)  # Extract kanji and add it to wordlist (root_kanji is 7th item in feature is written in kanji always)
+        # print(f " {word} is either 動詞 or形容詞 or形状詞 or 普通名詞")
     elif sub_pos == '固有名詞':
-        print("固有名詞 ↓")
+        # print("固有名詞")
         extracted_wordlist.append(word)
     elif pos in ( '名詞', '接続詞', '副詞', '連体詞', "代名詞" ):
-        print("名詞, or 接続詞 or 副詞 or 連体詞 or代名詞 ↓")
+        # print(f"{word} is either 名詞, or 接続詞 or 副詞 or 連体詞 or 代名詞")
         extracted_wordlist.append(word)
     node = node.next # Move on to next node(word)
 
@@ -192,12 +278,13 @@ unique_wordlist = exclude_duplicate_word(extracted_wordlist)
 # print(f"英数字除外前\n{unique_wordlist}")
 # Exclude alphabetical words
 no_alphabet_wordlist = exclude_alphabet(unique_wordlist)
-print(f"除外後\n{no_alphabet_wordlist}")
+# print(f"アルファベット除外後の単語一覧\n{no_alphabet_wordlist}")
 
 # Exclude empty strings
 packed_wordlist = [ i for i in no_alphabet_wordlist if i != '' ]
 no_stop_word_list = exclude_stop_words(packed_wordlist)
-processed_wordlist = no_stop_word_list
+processed_wordlist = remove_alphabet_from_katakana_word(no_stop_word_list)
+
 
 
 # Convert words to romaji and append it to romaji_wordlist
@@ -221,16 +308,35 @@ for word in processed_wordlist:
 # Convert Kanji to Hiragana
 hiragana_wordlist = convert_kanji_to_hiragana(processed_wordlist)
 
-print(f"抽出単語数: {len(processed_wordlist)}\n{processed_wordlist}")
-print(f"ひらがな数: {len(hiragana_wordlist)}\n{hiragana_wordlist}")
-
-# Put together word, romaji and definition in a list
-final_output_wordlist = []
+# Put together word, romaji and definition in a list ( When empty string is in hiragana_wordlist, omit hiragana on the right )
+final_output_wordlist = [] 
 for i in range(len(processed_wordlist)):
-    if hiragana_wordlist[i] == "":
-        final_output_wordlist.append(f"{processed_wordlist[i]}    [ {romaji_wordlist[i]} ] {definition_wordlist[i]}")
-    else:
-        final_output_wordlist.append(f"{processed_wordlist[i]}    [ {hiragana_wordlist[i]} / {romaji_wordlist[i]} ] {definition_wordlist[i]}")
+    formatted_output = ""
+    if hiragana_wordlist[i] == "": # When the element in hiragana_wordlist is empty
+        print(f"{hiragana_wordlist[i]} は空文字です")
+        if output_format == 1 or output_format == 2:    # にほんご  ↔  [ nihongo ] japonais
+            formatted_output = f"{processed_wordlist[i]}    [ {romaji_wordlist[i]} ] {definition_wordlist[i]}"
+        elif output_format == 3:  # にほんご [nihongo]  ↔  japonais
+            formatted_output = f"{processed_wordlist[i]} [ {romaji_wordlist[i]} ]    {definition_wordlist[i]}"
+        elif output_format == 4:  # japonais  ↔  にほんご [ nihongo ]
+            formatted_output = f"{definition_wordlist[i]}    {processed_wordlist[i]} [ {romaji_wordlist[i]} ] "
+
+    else:  # When there's an element in hiragana_wordlist
+        
+        if output_format == 1:    # 日本語  ↔  [ にほんご / nihongo ] japonais
+            formatted_output = f"{processed_wordlist[i]}    [ {hiragana_wordlist[i]} / {romaji_wordlist[i]} ] {definition_wordlist[i]}"
+        elif output_format == 2:  # 日本語 [ にほんご ]  ↔  [ nihongo ] japonais
+            formatted_output = f"{processed_wordlist[i]} [ {hiragana_wordlist[i]} ]    [ {romaji_wordlist[i]} ] {definition_wordlist[i]}"
+        elif output_format == 3:  # にほんご [nihongo]  ↔  [ 日本語 ] japonais
+            formatted_output = f"{hiragana_wordlist[i]} [ {romaji_wordlist[i]} ]    [ {processed_wordlist[i]} ] {definition_wordlist[i]}"
+        elif output_format == 4:  # japonais  ↔  日本語 [ にほんご / nihongo ]
+            formatted_output = f"{definition_wordlist[i]}    {processed_wordlist[i]} [ {hiragana_wordlist[i]} / {romaji_wordlist[i]} ] "
+    
+    final_output_wordlist.append(formatted_output)
+
+# print(f"final_output_wordlist(数): {len(final_output_wordlist)}")
+# print(f"final_output_wordlist: \n{final_output_wordlist}")
+
 
 # Convert final_output_wordlist to the list that contains words separated with comma.
 comma_separated_wordlist = []
