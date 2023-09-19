@@ -141,7 +141,7 @@ def convert_kanji_to_hiragana(kanji_list):
     return hiragana_list
 
 def exclude_stop_words(wordlist):
-    stop_words = ["為", "為る", "為す", "呉れる", "有る", "成る", "これ", "あれ", "居る", "私", "*"]
+    stop_words = ["為", "為る", "為す", "呉れる", "有る", "成る", "これ", "あれ", "居る", "私", "*", "如何", "か", "た", "ず", "ね", "て", "の", "御座る", "下さる", "も", "遣る", "侭", "その", "私", "わたし", "僕", "君", "ぼく", "きみ", "なん", "因る"]
     filtered_words = []
     for word in wordlist:
         # Check if the word is not in the stop_words list
