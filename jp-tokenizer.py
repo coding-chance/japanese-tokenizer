@@ -218,13 +218,13 @@ output_types = OutputOptionMenu(
 )
 
 # Create Button
-buttonFont = font.Font(size=20)
-button = Button(root, text="Start", fg='black', width=6, height=1, command=output_types.callback)
+buttonFont = font.Font(size=26)
+button = Button(root, text="Start", fg='black', width=6, height=2, command=output_types.callback)
 button['font'] = buttonFont
 
 # Set where to put widget element
 output_types.place(x=50, y=60)
-button.place(x=170, y=110)
+button.place(x=170, y=120)
 
 # Render UI
 root.mainloop()
