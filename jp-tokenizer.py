@@ -112,13 +112,12 @@ def convert_romaji_to_french_phonetic(input_word_list):
 def convert_kanji_to_hiragana(kanji_list):
     hiragana_list = []
     kakasi = pykakasi.kakasi()
-    re_katakana = re.compile(r'[\u30A1-\u30F4]+')  # カタカナ判定用正規表現
-    re_hiragana = re.compile(r'^[あ-ん]+$')  # ひらがな判定用正規表現
-    re_kanji = re.compile(r'^[\u4E00-\u9FD0]+$')  # 漢字判定用正規表現
+    re_katakana = re.compile(r'[\u30A1-\u30F4]+')  # Regular expression to detect Katakana
+    re_hiragana = re.compile(r'^[あ-ん]+$')  # Regular expression to detect Hiragana
+    re_kanji = re.compile(r'^[\u4E00-\u9FD0]+$')  # Regular expression to detect Kanji
     for word in kanji_list:
-        print(word)
-        status_katakana = re_katakana.fullmatch(word)  # 単語がカタカナかどうか判定する
-        status_hiragana = re_hiragana.fullmatch(word)  # 単語がひらがなかどうか判定する
+        status_katakana = re_katakana.fullmatch(word)  # Judge if the word is Katakana
+        status_hiragana = re_hiragana.fullmatch(word)  # Judge if the word is Hiragana
         status_kanji = re_kanji.fullmatch(word)
         # print(f"status_katakana({word}): {status_katakana}")
         # print(f"status_hiragana({word}): {status_hiragana}")
@@ -126,7 +125,12 @@ def convert_kanji_to_hiragana(kanji_list):
         hiragana = ""
 
         if status_kanji:
-            hiragana = kakasi.convert(word)[0]['hira']
+            processed_hiragana = kakasi.convert(word)
+            if len(processed_hiragana) > 1:  # Sometimes, verb is separated into two parts like following -> [{'orig': '泊ま', 'hira': 'とま', 'kana': 'トマ', 'hepburn': 'toma', 'kunrei': 'toma', 'passport': 'toma'}, {'orig': 'る', 'hira': 'る', 'kana': 'ル', 'hepburn': 'ru', 'kunrei': 'ru', 'passport': 'ru'}]
+                hiragana = f"{processed_hiragana[0]['hira']}{processed_hiragana[1]['hira']}"
+                print(f"[pykakasi] The stem and suffix of '{word}' are separated:\n -> {kakasi.convert(word)}")
+            else:
+                hiragana = f"{processed_hiragana[0]['hira']}"
             print(f"{word} is kanji, converted to {hiragana}")
         elif status_katakana:
             hiragana = jaconv.kata2hira(word)  # katakana -> hiragana
@@ -134,14 +138,20 @@ def convert_kanji_to_hiragana(kanji_list):
         elif status_hiragana:
             print(f"{word} is already hiragana, no need to convert.")
         else:
+            processed_hiragana = kakasi.convert(word)
+            if len(processed_hiragana) > 1:  # Sometimes, verb is separated into two parts like following -> [{'orig': '泊ま', 'hira': 'とま', 'kana': 'トマ', 'hepburn': 'toma', 'kunrei': 'toma', 'passport': 'toma'}, {'orig': 'る', 'hira': 'る', 'kana': 'ル', 'hepburn': 'ru', 'kunrei': 'ru', 'passport': 'ru'}]
+                hiragana = f"{processed_hiragana[0]['hira']}{processed_hiragana[1]['hira']}"
+                print(f"[pykakasi] The stem and suffix of '{word}' are separated:\n -> {kakasi.convert(word)}")
+            else:
+                hiragana = f"{processed_hiragana[0]['hira']}"
             print(f"{word} is mix with kanji and hiragana, converted to {hiragana}.")
-            hiragana = kakasi.convert(word)[0]['hira']
 
         hiragana_list.append(hiragana)
+    print(f"Kanji characters were converted to Hiragana characters\n -> {hiragana_list}")
     return hiragana_list
 
 def exclude_stop_words(wordlist):
-    stop_words = ["為", "為る", "為す", "呉れる", "有る", "成る", "これ", "あれ", "居る", "私", "*", "如何", "か", "た", "ず", "ね", "て", "の", "御座る", "下さる", "も", "遣る", "侭", "その", "私", "わたし", "僕", "君", "ぼく", "きみ", "なん", "因る"]
+    stop_words = ["為", "為る", "為す", "呉れる", "有る", "成る", "これ", "あれ", "居る", "私", "*", "如何", "か", "た", "ず", "ね", "て", "の", "御座る", "下さる", "も", "遣る", "侭", "その", "私", "わたし", "僕", "君", "ぼく", "きみ", "なん", "因る", "語"]
     filtered_words = []
     for word in wordlist:
         # Check if the word is not in the stop_words list
@@ -157,8 +167,8 @@ def remove_alphabet_from_katakana_word(wordlist):
         if word.find("-") == -1 : # doesn't contain "-"
             no_katakana_alphabet_words.append(word)
         else:              # contains "-"
-            print(f"カタカナ言葉を検知しました(単語に含まれるアルファベットが取り除かれます): {word}")
             no_katakana_alphabet_words.append(word.split("-")[0]) # remove the string after hypen
+            print(f"Katakana word (Japanglish) was detected (The alphabet next to the word was removed): {word}")
     return no_katakana_alphabet_words
 
 
@@ -313,7 +323,7 @@ final_output_wordlist = []
 for i in range(len(processed_wordlist)):
     formatted_output = ""
     if hiragana_wordlist[i] == "": # When the element in hiragana_wordlist is empty
-        print(f"{hiragana_wordlist[i]} は空文字です")
+        # print(f"{hiragana_wordlist[i]} は空文字です")
         if output_format == 1 or output_format == 2:    # にほんご  ↔  [ nihongo ] japonais
             formatted_output = f"{processed_wordlist[i]}    [ {romaji_wordlist[i]} ] {definition_wordlist[i]}"
         elif output_format == 3:  # にほんご [nihongo]  ↔  japonais
