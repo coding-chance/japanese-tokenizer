@@ -18,8 +18,9 @@ load_dotenv()
 # Load directory path to the project directory from .env file
 TOKENIZER_PROJECT_DIRECTORY = os.environ['TOKENIZER_PROJECT_DIR']
 
-# 
+# Declare class for user interface
 class OutputOptionMenu(OptionMenu):
+    # Constructor that holds parameters for ui design
     def __init__(self, master, status, *options):
         self.var = StringVar(master)
         self.var.set(status)
@@ -28,13 +29,10 @@ class OutputOptionMenu(OptionMenu):
         self.config(font=('calibri', (16)), bg='white', width=32, fg='black')
         self['menu'].config(font=('calibri', (16)), bg='white', fg='dark blue')
 
+    # function that runs when "start" button was clicked
     def callback(self):
         val = self.var.get()
         print(f"chosen output type: {val}")
-
-
-
-        ####### This part fails to modify global variable "output_format" ##########
 
         if val == "日本語  ↔  [ にほんご / nihongo ] français":
             self.var.set(1)
@@ -47,9 +45,7 @@ class OutputOptionMenu(OptionMenu):
         elif val == "日本語  ↔  [ にほんご / nihongo ] English":
             self.var.set(5)
 
-        #########################################################
-
-        root.destroy()
+        root.destroy()  # Close UI window
 
         # If you want to run subprocess, include 'subprocess' library
         # subprocess.call([val])
