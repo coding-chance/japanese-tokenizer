@@ -36,13 +36,13 @@ class OutputOptionMenu(OptionMenu):
 
         ####### This part fails to modify global variable "output_format" ##########
 
-        if val == "日本語  ↔  [ にほんご / nihongo ] japonais":
+        if val == "日本語  ↔  [ にほんご / nihongo ] français":
             self.var.set(1)
-        elif val == "日本語 [ にほんご ]  ↔  [ nihongo ] japonais":
+        elif val == "日本語 [ にほんご ]  ↔  [ nihongo ] français":
             self.var.set(2)
-        elif val == "にほんご [nihongo]  ↔  [ 日本語 ] japonais":
+        elif val == "にほんご [nihongo]  ↔  [ 日本語 ] français":
             self.var.set(3)
-        elif val == "japonais  ↔  日本語 [ にほんご / nihongo ]":
+        elif val == "français  ↔  日本語 [ にほんご / nihongo ]":
             self.var.set(4)            
 
         #########################################################
@@ -126,32 +126,40 @@ def convert_kanji_to_hiragana(kanji_list):
 
         if status_kanji:
             processed_hiragana = kakasi.convert(word)
-            if len(processed_hiragana) > 1:  # Sometimes, verb is separated into two parts like following -> [{'orig': '泊ま', 'hira': 'とま', 'kana': 'トマ', 'hepburn': 'toma', 'kunrei': 'toma', 'passport': 'toma'}, {'orig': 'る', 'hira': 'る', 'kana': 'ル', 'hepburn': 'ru', 'kunrei': 'ru', 'passport': 'ru'}]
+            if len(processed_hiragana) == 2:  # Sometimes, verb is separated into two parts like following -> [{'orig': '泊ま', 'hira': 'とま', 'kana': 'トマ', 'hepburn': 'toma', 'kunrei': 'toma', 'passport': 'toma'}, {'orig': 'る', 'hira': 'る', 'kana': 'ル', 'hepburn': 'ru', 'kunrei': 'ru', 'passport': 'ru'}]
                 hiragana = f"{processed_hiragana[0]['hira']}{processed_hiragana[1]['hira']}"
+                print(f"[pykakasi] The stem and suffix of '{word}' are separated:\n -> {kakasi.convert(word)}")
+            elif len(processed_hiragana) == 3:
+                hiragana = f"{processed_hiragana[0]['hira']}{processed_hiragana[1]['hira']}{processed_hiragana[2]['hira']}"
                 print(f"[pykakasi] The stem and suffix of '{word}' are separated:\n -> {kakasi.convert(word)}")
             else:
                 hiragana = f"{processed_hiragana[0]['hira']}"
-            print(f"{word} is kanji, converted to {hiragana}")
+            # print(f"{word} is kanji, converted to {hiragana}")
         elif status_katakana:
             hiragana = jaconv.kata2hira(word)  # katakana -> hiragana
-            print(f"{word} is katakana, converted to {hiragana}")
+            # print(f"{word} is katakana, converted to {hiragana}")
+            pass
         elif status_hiragana:
-            print(f"{word} is already hiragana, no need to convert.")
+            # print(f"{word} is already hiragana, no need to convert.")
+            pass
         else:
             processed_hiragana = kakasi.convert(word)
-            if len(processed_hiragana) > 1:  # Sometimes, verb is separated into two parts like following -> [{'orig': '泊ま', 'hira': 'とま', 'kana': 'トマ', 'hepburn': 'toma', 'kunrei': 'toma', 'passport': 'toma'}, {'orig': 'る', 'hira': 'る', 'kana': 'ル', 'hepburn': 'ru', 'kunrei': 'ru', 'passport': 'ru'}]
+            if len(processed_hiragana) == 2:
                 hiragana = f"{processed_hiragana[0]['hira']}{processed_hiragana[1]['hira']}"
+                print(f"[pykakasi] The stem and suffix of '{word}' are separated:\n -> {kakasi.convert(word)}")
+            elif len(processed_hiragana) == 3:
+                hiragana = f"{processed_hiragana[0]['hira']}{processed_hiragana[1]['hira']}{processed_hiragana[2]['hira']}"
                 print(f"[pykakasi] The stem and suffix of '{word}' are separated:\n -> {kakasi.convert(word)}")
             else:
                 hiragana = f"{processed_hiragana[0]['hira']}"
-            print(f"{word} is mix with kanji and hiragana, converted to {hiragana}.")
+            # print(f"{word} is mix with kanji and hiragana, converted to {hiragana}.")
 
         hiragana_list.append(hiragana)
     print(f"Kanji characters were converted to Hiragana characters\n -> {hiragana_list}")
     return hiragana_list
 
 def exclude_stop_words(wordlist):
-    stop_words = ["為", "為る", "為す", "呉れる", "有る", "成る", "これ", "あれ", "居る", "私", "*", "如何", "か", "た", "ず", "ね", "て", "の", "御座る", "下さる", "も", "遣る", "侭", "その", "私", "わたし", "僕", "君", "ぼく", "きみ", "なん", "因る", "語"]
+    stop_words = ["為", "為る", "為す", "呉れる", "有る", "成る", "これ", "あれ", "居る", "私", "*", "如何", "か", "た", "ず", "ね", "て", "の", "御座る", "下さる", "も", "遣る", "侭", "その", "私", "わたし", "僕", "君", "ぼく", "きみ", "なん", "因る", "語", "は", "や"]
     filtered_words = []
     for word in wordlist:
         # Check if the word is not in the stop_words list
@@ -188,10 +196,10 @@ label = Label(text='Choose output type', font=('calibri', (18)), fg='white',
 
 output_types = OutputOptionMenu(
     root,
-    "日本語  ↔  [ にほんご / nihongo ] japonais",
-    "日本語 [ にほんご ]  ↔  [ nihongo ] japonais",
-    "にほんご [nihongo]  ↔  [ 日本語 ] japonais",
-    "japonais  ↔  日本語 [ にほんご / nihongo ]",
+    "日本語  ↔  [ にほんご / nihongo ] français",
+    "日本語 [ にほんご ]  ↔  [ nihongo ] français",
+    "にほんご [nihongo]  ↔  [ 日本語 ] français",
+    "français  ↔  日本語 [ にほんご / nihongo ]",
 )
 
 # Create Button
@@ -324,22 +332,22 @@ for i in range(len(processed_wordlist)):
     formatted_output = ""
     if hiragana_wordlist[i] == "": # When the element in hiragana_wordlist is empty
         # print(f"{hiragana_wordlist[i]} は空文字です")
-        if output_format == 1 or output_format == 2:    # にほんご  ↔  [ nihongo ] japonais
+        if output_format == 1 or output_format == 2:    # にほんご  ↔  [ nihongo ] français
             formatted_output = f"{processed_wordlist[i]}    [ {romaji_wordlist[i]} ] {definition_wordlist[i]}"
-        elif output_format == 3:  # にほんご [nihongo]  ↔  japonais
+        elif output_format == 3:  # にほんご [nihongo]  ↔  français
             formatted_output = f"{processed_wordlist[i]} [ {romaji_wordlist[i]} ]    {definition_wordlist[i]}"
-        elif output_format == 4:  # japonais  ↔  にほんご [ nihongo ]
+        elif output_format == 4:  # français  ↔  にほんご [ nihongo ]
             formatted_output = f"{definition_wordlist[i]}    {processed_wordlist[i]} [ {romaji_wordlist[i]} ] "
 
     else:  # When there's an element in hiragana_wordlist
         
-        if output_format == 1:    # 日本語  ↔  [ にほんご / nihongo ] japonais
+        if output_format == 1:    # 日本語  ↔  [ にほんご / nihongo ] français
             formatted_output = f"{processed_wordlist[i]}    [ {hiragana_wordlist[i]} / {romaji_wordlist[i]} ] {definition_wordlist[i]}"
-        elif output_format == 2:  # 日本語 [ にほんご ]  ↔  [ nihongo ] japonais
+        elif output_format == 2:  # 日本語 [ にほんご ]  ↔  [ nihongo ] français
             formatted_output = f"{processed_wordlist[i]} [ {hiragana_wordlist[i]} ]    [ {romaji_wordlist[i]} ] {definition_wordlist[i]}"
-        elif output_format == 3:  # にほんご [nihongo]  ↔  [ 日本語 ] japonais
+        elif output_format == 3:  # にほんご [nihongo]  ↔  [ 日本語 ] français
             formatted_output = f"{hiragana_wordlist[i]} [ {romaji_wordlist[i]} ]    [ {processed_wordlist[i]} ] {definition_wordlist[i]}"
-        elif output_format == 4:  # japonais  ↔  日本語 [ にほんご / nihongo ]
+        elif output_format == 4:  # français  ↔  日本語 [ にほんご / nihongo ]
             formatted_output = f"{definition_wordlist[i]}    {processed_wordlist[i]} [ {hiragana_wordlist[i]} / {romaji_wordlist[i]} ] "
     
     final_output_wordlist.append(formatted_output)
