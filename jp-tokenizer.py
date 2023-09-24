@@ -43,7 +43,9 @@ class OutputOptionMenu(OptionMenu):
         elif val == "にほんご [nihongo]  ↔  [ 日本語 ] français":
             self.var.set(3)
         elif val == "français  ↔  日本語 [ にほんご / nihongo ]":
-            self.var.set(4)            
+            self.var.set(4)
+        elif val == "日本語  ↔  [ にほんご / nihongo ] English":
+            self.var.set(5)
 
         #########################################################
 
@@ -179,6 +181,22 @@ def remove_alphabet_from_katakana_word(wordlist):
             print(f"Katakana word (Japanglish) was detected (The alphabet next to the word was removed): {word}")
     return no_katakana_alphabet_words
 
+# Translate Japanese words in wordlist to French
+def translate_to_french(japanese_wordlist):
+    french_wordlist = []
+    for word in japanese_wordlist:
+        definition = GoogleTranslator(source='ja', target='fr').translate(word)
+        french_wordlist.append(definition)
+    return french_wordlist
+
+# Translate Japanese words in wordlist to French
+def translate_to_english(japanese_wordlist):
+    english_wordlist = []
+    for word in japanese_wordlist:
+        definition = GoogleTranslator(source='ja', target='en').translate(word)
+        english_wordlist.append(definition)
+    return english_wordlist
+
 
 root = Tk()
 # Set window size
@@ -200,6 +218,7 @@ output_types = OutputOptionMenu(
     "日本語 [ にほんご ]  ↔  [ nihongo ] français",
     "にほんご [nihongo]  ↔  [ 日本語 ] français",
     "français  ↔  日本語 [ にほんご / nihongo ]",
+    "日本語  ↔  [ にほんご / nihongo ] English",
 )
 
 # Create Button
@@ -316,12 +335,15 @@ for word in processed_wordlist:
 romaji_wordlist = convert_romaji_to_french_phonetic(romaji_wordlist)
 # print(f'romaji_wordlist: {romaji_wordlist}')
 
-# Get definition of each word
-definition_wordlist = []
-for word in processed_wordlist:
-    definition = GoogleTranslator(source='ja', target='fr').translate(word)
-    definition_wordlist.append(definition)
+
 # print(f'definition_wordlist: {definition_wordlist}')
+
+# Get definition of each word
+if output_format == 5:
+    definition_wordlist = translate_to_english(processed_wordlist)  # Get English definition of each word
+else:
+    definition_wordlist = translate_to_french(processed_wordlist)   # Get French definition of each word
+
 
 # Convert Kanji to Hiragana
 hiragana_wordlist = convert_kanji_to_hiragana(processed_wordlist)
@@ -334,10 +356,12 @@ for i in range(len(processed_wordlist)):
         # print(f"{hiragana_wordlist[i]} は空文字です")
         if output_format == 1 or output_format == 2:    # にほんご  ↔  [ nihongo ] français
             formatted_output = f"{processed_wordlist[i]}    [ {romaji_wordlist[i]} ] {definition_wordlist[i]}"
-        elif output_format == 3:  # にほんご [nihongo]  ↔  français
+        elif output_format == 3:  # にほんご [ nihongo ]  ↔  français
             formatted_output = f"{processed_wordlist[i]} [ {romaji_wordlist[i]} ]    {definition_wordlist[i]}"
         elif output_format == 4:  # français  ↔  にほんご [ nihongo ]
             formatted_output = f"{definition_wordlist[i]}    {processed_wordlist[i]} [ {romaji_wordlist[i]} ] "
+        elif output_format == 5: # にほんご ↔ [ nihongo ] English
+            formatted_output = f"{processed_wordlist[i]}    [ {romaji_wordlist[i]} ] {definition_wordlist[i]}"
 
     else:  # When there's an element in hiragana_wordlist
         
@@ -345,10 +369,12 @@ for i in range(len(processed_wordlist)):
             formatted_output = f"{processed_wordlist[i]}    [ {hiragana_wordlist[i]} / {romaji_wordlist[i]} ] {definition_wordlist[i]}"
         elif output_format == 2:  # 日本語 [ にほんご ]  ↔  [ nihongo ] français
             formatted_output = f"{processed_wordlist[i]} [ {hiragana_wordlist[i]} ]    [ {romaji_wordlist[i]} ] {definition_wordlist[i]}"
-        elif output_format == 3:  # にほんご [nihongo]  ↔  [ 日本語 ] français
+        elif output_format == 3:  # にほんご [ nihongo ]  ↔  [ 日本語 ] français
             formatted_output = f"{hiragana_wordlist[i]} [ {romaji_wordlist[i]} ]    [ {processed_wordlist[i]} ] {definition_wordlist[i]}"
         elif output_format == 4:  # français  ↔  日本語 [ にほんご / nihongo ]
             formatted_output = f"{definition_wordlist[i]}    {processed_wordlist[i]} [ {hiragana_wordlist[i]} / {romaji_wordlist[i]} ] "
+        elif output_format == 5: # にほんご ↔ [ にほんご / nihongo ] English
+            formatted_output = f"{processed_wordlist[i]}    [ {hiragana_wordlist[i]} / {romaji_wordlist[i]} ] {definition_wordlist[i]}"
     
     final_output_wordlist.append(formatted_output)
 
