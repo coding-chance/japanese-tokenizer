@@ -157,7 +157,7 @@ def convert_kanji_to_hiragana(kanji_list):
     return hiragana_list
 
 def exclude_stop_words(wordlist):
-    stop_words = ["為", "為る", "為す", "呉れる", "有る", "成る", "これ", "あれ", "居る", "私", "*", "如何", "か", "た", "ず", "ね", "て", "の", "御座る", "下さる", "も", "遣る", "侭", "その", "私", "わたし", "僕", "君", "ぼく", "きみ", "なん", "因る", "語", "は", "や"]
+    stop_words = ["為", "為る", "為す", "呉れる", "有る", "成る", "これ", "あれ", "居る", "私", "*", "如何", "か", "た", "ず", "ね", "て", "の", "御座る", "下さる", "も", "遣る", "侭", "その", "私", "わたし", "僕", "君", "ぼく", "きみ", "なん", "因る", "語", "は", "や", "です", "ます"]
     filtered_words = []
     for word in wordlist:
         # Check if the word is not in the stop_words list
@@ -205,8 +205,7 @@ y = (hs/2) - (h/2)
 root.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
 root.title('JP Tokenizer')
-label = Label(text='Choose output type', font=('calibri', (18)), fg='white', 
-              padx=20, pady=15).pack()
+label = Label(text='Choose output type', font=('calibri', (18)), fg='white', padx=20, pady=15).pack()
 
 output_types = OutputOptionMenu(
     root,
@@ -349,7 +348,7 @@ final_output_wordlist = []
 for i in range(len(processed_wordlist)):
     formatted_output = ""
     if hiragana_wordlist[i] == "": # When the element in hiragana_wordlist is empty
-        # print(f"{hiragana_wordlist[i]} は空文字です")
+        # print(f"{hiragana_wordlist[i]} is empty string")
         if output_format == 1 or output_format == 2:    # にほんご  ↔  [ nihongo ] français
             formatted_output = f"{processed_wordlist[i]}    [ {romaji_wordlist[i]} ] {definition_wordlist[i]}"
         elif output_format == 3:  # にほんご [ nihongo ]  ↔  français
