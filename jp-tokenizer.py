@@ -158,7 +158,11 @@ def convert_kanji_to_hiragana(kanji_list):
     return hiragana_list
 
 def exclude_stop_words(wordlist):
-    stop_words = ["為", "為る", "為す", "呉れる", "有る", "成る", "これ", "あれ", "居る", "私", "*", "如何", "か", "た", "ず", "ね", "て", "の", "御座る", "下さる", "も", "遣る", "侭", "その", "私", "わたし", "僕", "君", "ぼく", "きみ", "なん", "因る", "語", "は", "や", "です", "ます", "仕舞う", "で"]
+    stop_words = [
+        "為", "為る", "為す", "呉れる", "有る", "成る", "これ","あれ", "居る", "私", "*", "如何", "か", "た",
+        "ず", "ね", "て", "の", "御座る", "下さる", "も", "遣る", "侭", "その", "私", "わたし", "僕", "君",
+        "ぼく", "きみ", "なん", "因る", "語", "は", "や", "です", "ます", "仕舞う", "で"
+    ]
     filtered_words = []
     for word in wordlist:
         # Check if the word is not in the stop_words list
@@ -193,6 +197,35 @@ def translate_to_english(japanese_wordlist):
         definition = GoogleTranslator(source='ja', target='en').translate(word)
         english_wordlist.append(definition)
     return english_wordlist
+
+# Correct wrong romaji
+def correct_hiragana_and_romaji(kanji_words, hiragana_words, romaji_words):
+    fix_target_words = {
+        "下ろす": {"hira": "おろす", "romaji": "orosu"}, "露わ": {"hira": "あらわ", "romaji": "arawa"}, 
+        "言い包める": {"hira": "いいくるめる", "romaji": "iikurumeru"}, "浮かび上がる": {"hira": "うかびあがる", "romaji": "ukabiagaru"}, 
+        "言い放つ": {"hira": "いいはなつ", "romaji": "iihanatsu"}, "通す": {"hira": "とおす", "romaji": "toosu"}, 
+        "離れる": {"hira": "はなれる", "romaji": "hanareru"},
+        # "": {"hira": "", "romaji": ""}, "": {"hira": "", "romaji": ""}, 
+        # "": {"hira": "", "romaji": ""}, "": {"hira": "", "romaji": ""}, 
+    }
+    # print("correct_hiragana_and_romaji process started]")
+    # print(f"input hiragana_words (before): {hiragana_words}")
+    # print(f"input romaji_words (before): {romaji_words}")
+
+    # Swap wrong hiragana and wrong romaji
+    for index, word in enumerate(kanji_words):
+        if word in fix_target_words:
+            hiragana_words[index] = fix_target_words[word]["hira"]
+            romaji_words[index] = fix_target_words[word]["romaji"]
+            # print(f"No. {index}: {word}")
+            # print(f"  {hiragana_words[index]} -> {fix_target_words[word]['hira']}")
+            # print(f"  {romaji_words[index]} -> {fix_target_words[word]['romaji']}")
+
+    # print(f"hiragana_words(after): {hiragana_words}")
+    # print(f"romaji_words(after): {romaji_words}") 
+
+    return {"hiragana": hiragana_words, "romaji": romaji_words}
+
 
 
 root = Tk()
@@ -338,6 +371,14 @@ for word in processed_wordlist:
     romaji_wordlist.append(romaji)
     # print(romaji)
 
+# Convert Kanji to Hiragana
+hiragana_wordlist = convert_kanji_to_hiragana(processed_wordlist)
+
+# Correct potential wrong romaji words
+corrected_phonetics = correct_hiragana_and_romaji(processed_wordlist, hiragana_wordlist, romaji_wordlist)
+hiragana_wordlist = corrected_phonetics["hiragana"]
+romaji_wordlist = corrected_phonetics["romaji"]
+
 # If French translation is demanded, write romaji in French letters
 if output_format != 5:
     romaji_wordlist = convert_romaji_to_french_phonetic(romaji_wordlist)
@@ -353,10 +394,6 @@ if output_format == 5:
     definition_wordlist = translate_to_english(processed_wordlist)  # Get English definition of each word
 else:
     definition_wordlist = translate_to_french(processed_wordlist)   # Get French definition of each word
-
-
-# Convert Kanji to Hiragana
-hiragana_wordlist = convert_kanji_to_hiragana(processed_wordlist)
 
 # Put together word, romaji and definition in a list ( When empty string is in hiragana_wordlist, omit hiragana on the right )
 final_output_wordlist = [] 
