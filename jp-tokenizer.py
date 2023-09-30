@@ -327,9 +327,13 @@ for word in processed_wordlist:
     romaji_wordlist.append(romaji)
     # print(romaji)
 # Convert hepbuern romaji to original french romaji
-romaji_wordlist = convert_romaji_to_french_phonetic(romaji_wordlist)
-# print(f'romaji_wordlist: {romaji_wordlist}')
 
+# If French translation is demanded, write romaji in French letters
+if output_format != 5:
+    romaji_wordlist = convert_romaji_to_french_phonetic(romaji_wordlist)
+    print(f'kanji words were converted to romaji in french phonetic:\n{romaji_wordlist}')
+else:
+    print(f'kanji words were converted to romaji:\n{romaji_wordlist}')
 
 # print(f'definition_wordlist: {definition_wordlist}')
 
