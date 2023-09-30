@@ -32,7 +32,7 @@ class OutputOptionMenu(OptionMenu):
     # function that runs when "start" button was clicked
     def callback(self):
         val = self.var.get()
-        print(f"chosen output type: {val}")
+        print(f"Output Format: {val}")
 
         if val == "日本語  ↔  [ にほんご / nihongo ] français":
             self.var.set(1)
@@ -122,14 +122,15 @@ def convert_kanji_to_hiragana(kanji_list):
         # print(f"status_kanji({word}): {status_kanji}")
         hiragana = ""
 
+
         if status_kanji:
             processed_hiragana = kakasi.convert(word)
             if len(processed_hiragana) == 2:  # Sometimes, verb is separated into two parts like following -> [{'orig': '泊ま', 'hira': 'とま', 'kana': 'トマ', 'hepburn': 'toma', 'kunrei': 'toma', 'passport': 'toma'}, {'orig': 'る', 'hira': 'る', 'kana': 'ル', 'hepburn': 'ru', 'kunrei': 'ru', 'passport': 'ru'}]
                 hiragana = f"{processed_hiragana[0]['hira']}{processed_hiragana[1]['hira']}"
-                print(f"[pykakasi] The stem and suffix of '{word}' are separated:\n -> {kakasi.convert(word)}")
+                # print(f"Kanji Analysis: The stem and suffix of '{word}' are separated:\n -> {processed_hiragana}")
             elif len(processed_hiragana) == 3:
                 hiragana = f"{processed_hiragana[0]['hira']}{processed_hiragana[1]['hira']}{processed_hiragana[2]['hira']}"
-                print(f"[pykakasi] The stem and suffix of '{word}' are separated:\n -> {kakasi.convert(word)}")
+                # print(f"Kanji Analysis: The stem and suffix of '{word}' are separated:\n -> {processed_hiragana}")
             else:
                 hiragana = f"{processed_hiragana[0]['hira']}"
             # print(f"{word} is kanji, converted to {hiragana}")
@@ -144,16 +145,16 @@ def convert_kanji_to_hiragana(kanji_list):
             processed_hiragana = kakasi.convert(word)
             if len(processed_hiragana) == 2:
                 hiragana = f"{processed_hiragana[0]['hira']}{processed_hiragana[1]['hira']}"
-                print(f"[pykakasi] The stem and suffix of '{word}' are separated:\n -> {kakasi.convert(word)}")
+                # print(f"Kanji Analysis: The stem and suffix of '{word}' are separated:\n -> {processed_hiragana}")
             elif len(processed_hiragana) == 3:
                 hiragana = f"{processed_hiragana[0]['hira']}{processed_hiragana[1]['hira']}{processed_hiragana[2]['hira']}"
-                print(f"[pykakasi] The stem and suffix of '{word}' are separated:\n -> {kakasi.convert(word)}")
+                # print(f"Kanji Analysis: The stem and suffix of '{word}' are separated:\n -> {processed_hiragana}")
             else:
                 hiragana = f"{processed_hiragana[0]['hira']}"
             # print(f"{word} is mix with kanji and hiragana, converted to {hiragana}.")
 
         hiragana_list.append(hiragana)
-    print(f"Kanji characters were converted to Hiragana characters\n -> {hiragana_list}")
+    # print(f"Kanji characters were converted to Hiragana characters\n -> {hiragana_list}")
     return hiragana_list
 
 def exclude_stop_words(wordlist):
@@ -323,17 +324,27 @@ processed_wordlist = remove_alphabet_from_katakana_word(no_stop_word_list)
 kks = pykakasi.kakasi()
 romaji_wordlist = []
 for word in processed_wordlist:
-    romaji = kks.convert(word)[0]['hepburn']
+    analyzed_word = kks.convert(word)
+    # If the word is a verb with separate stems and suffixes, include suffix ( る [lu] ).
+    if len(analyzed_word) == 2:
+        romaji = f"{analyzed_word[0]['hepburn']}{analyzed_word[1]['hepburn']}"
+        # print(f"Romaji Analysis: The stem and suffix of '{word}' are separated:\n -> {analyzed_word}")
+    elif len(analyzed_word) == 3:
+        romaji = f"{analyzed_word[0]['hepburn']}{analyzed_word[1]['hepburn']}{analyzed_word[2]['hepburn']}"
+        # print(f"Romaji Analysis: The stem and suffix of '{word}' are separated:\n -> {analyzed_word}")
+    else:
+        romaji = analyzed_word[0]['hepburn']
+
     romaji_wordlist.append(romaji)
     # print(romaji)
-# Convert hepbuern romaji to original french romaji
 
 # If French translation is demanded, write romaji in French letters
 if output_format != 5:
     romaji_wordlist = convert_romaji_to_french_phonetic(romaji_wordlist)
-    print(f'kanji words were converted to romaji in french phonetic:\n{romaji_wordlist}')
+    # print(f'Kanji words were converted to romaji in french phonetic:\n -> {romaji_wordlist}')
 else:
-    print(f'kanji words were converted to romaji:\n{romaji_wordlist}')
+    # print(f'Kanji words were converted to romaji: \n -> {romaji_wordlist}')
+    pass
 
 # print(f'definition_wordlist: {definition_wordlist}')
 
@@ -400,3 +411,4 @@ with open(f'{TOKENIZER_PROJECT_DIRECTORY}/jp-word-list-{formatted_dt_now}.csv', 
 # Copy final output to the clipboard with a new line(\n) at the end of each word
 final_output_string = '\n'.join(final_output_wordlist)
 pyperclip.copy(final_output_string)
+print(f"\n--------------------------------------\n\n{final_output_string}\n\n--------------------------------------\n")
