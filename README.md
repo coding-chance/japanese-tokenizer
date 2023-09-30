@@ -100,6 +100,7 @@ Now open spotlight by pressing `Cmd key` + `Space key` and type the name of the 
 ## Notice
 1. Original stop word list is defined and ths script exclude the words from the result. Words that have diverse definition, words that are rarely used in modern Japanese, and particles are registered as stopwords. To see which words are registered, check `stop_words` in `jp-tokenizer.py`.
 2. Be careful of romaji (phonetics) because it is not necessarily correct. For example, romaji for '祝い事' is supposed to be 'iwaigoto' but the script generates 'iwaikoto'.
+3. When you chose to generate output with French definition, romaji is written with French specific characters and it is not necessarily the same as the standard system for romaji, nor hepburn, nor kunrei. However, thanks to this, you can learn more exact pronounciation of each word.
 
 > I would be very grateful if you could propose possible solutions to correct the factors causing above problems.
 
