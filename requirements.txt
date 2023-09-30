@@ -1,0 +1,8 @@
+deep_translator==1.11.4
+jaconv==0.3.4
+MeCab==0.996.3
+mecab_python3==1.0.6
+pykakasi==2.2.1
+pyperclip==1.8.2
+python-dotenv==1.0.0
+tkinter
